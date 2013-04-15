@@ -1,6 +1,6 @@
-(defproject clostack "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
+(defproject clostack "0.1.0"
+  :description "clojure cloudstack client"
+  :url "https://github.com/pyr/clostack"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :plugins [[codox "0.6.4"]]

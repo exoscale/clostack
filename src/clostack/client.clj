@@ -130,7 +130,7 @@
        [~'client & {:as ~'args}]
         (request ~'client ~(api-name sym) ~'args))
      (defn ~(symbol (str "async-" sym))
-       ~(format "See http://cloudstack.apache.org/docs/api/apidocs-4.0.0/user/%s.html" (api-name sym))
+       ~(format "See %s/%s.html" doc-url (api-name sym))
        [~'client & {:as ~'args}]
        (async-request ~'client ~(api-name sym) ~'args))))
 

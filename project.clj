@@ -1,4 +1,4 @@
-(defproject clostack "0.1.2"
+(defproject clostack "0.1.3"
   :description "clojure cloudstack client"
   :url "https://github.com/pyr/clostack"
   :license {:name "Eclipse Public License"

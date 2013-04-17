@@ -56,7 +56,7 @@
   "Given a complete HTTP object, deserialize"
   [resp]
   (case (quot (:code (http/status resp)) 100)
-    2 (json/read-str (http/string resp))
+    2 (json/read-json (http/string resp))
     4 (http/string resp)
     5 (http/string resp)))
 

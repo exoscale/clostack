@@ -57,6 +57,7 @@
   [resp]
   (case (quot (:code (http/status resp)) 100)
     2 (json/read-json (http/string resp))
+    3 (http/string resp)
     4 (http/string resp)
     5 (http/string resp)))
 

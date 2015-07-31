@@ -36,7 +36,7 @@ used to provide settings:
 The easiest way to use clostack in your own projects is via Leiningen. Add the following dependency to your project.clj file:
 
 ```clojure
-[clostack "0.1.0"]
+[spootnik/clostack "0.1.4"]
 ```
 
 ## Building Documentation

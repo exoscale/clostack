@@ -1,6 +1,9 @@
 clostack: clojure cloudstack client
 ===================================
 
+[![Build Status](https://secure.travis-ci.org/pyr/clostack.png)](http://travis-ci.org/pyr/clostack)
+
+
 A simple clojure cloudstack client.
 
 ## Reasoning

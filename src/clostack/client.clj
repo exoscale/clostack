@@ -14,7 +14,9 @@
 
 (defn json-response?
   [{:keys [headers] :as resp}]
-  true)
+  (let [ctype (get headers :content-type)]
+    (or (.contains ctype "javascript")
+        (.contains ctype "json"))))
 
 (defn parse-response
   [resp]
@@ -33,9 +35,15 @@
 
 (defn async-request
   [{:keys [config client]} opcode args handler]
-  (let [uri      (payload/build-uri config opcode args)
-        callback (comp handler parse-response)]
-    (http/request client {:uri uri :request-method :get} callback)))
+  (let [payload  (payload/build-input config opcode args)
+        callback (comp handler parse-response)
+        headers  {"Content-Length" (count payload)
+                  "Content-Type"   "application/x-www-form-urlencoded"}
+        req-map  {:uri            (:endpoint config)
+                  :request-method :post
+                  :headers        headers
+                  :body           payload}]
+    (http/request client req-map callback)))
 
 (defn request
   [client opcode args]

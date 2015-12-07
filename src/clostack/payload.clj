@@ -4,19 +4,23 @@
             [clostack.utils     :refer [url-encode quote-plus]]))
 
 (defn serialize-pair
+  "Encode a key/value pair"
   [[k v]]
   (str (s/lower-case (name k)) "=" (url-encode v)))
 
 (defn transform-map
+  "Encode a map argument appropriately"
   [top-k [i m]]
   (for [[k v] m]
     [(format "%s[%d].%s" (name top-k) i (s/lower-case (name k))) (str v)]))
 
 (defn transform-maps
+  "For a list of maps, produce the expected key/value pairs."
   [k maps]
   (vec (mapcat (partial transform-map k) (map-indexed vector maps))))
 
-(defn unroll-arg
+(defn transform-arg
+  "transform argument into a list of key/value pairs."
   [[k v]]
   (let [k (s/lower-case (name k))
         v (if (keyword? v) (name v) v)]
@@ -31,28 +35,29 @@
         :else
         [[k (str v)]]))))
 
-(defn unroll
+(defn transform-args
+  "Transform arguments into a vector of key/value pairs."
   [args]
-  (vec (mapcat unroll-arg (filter (complement nil?) args))))
+  (vec (mapcat transform-arg (filter (complement nil?) args))))
 
-(defn build-path
-  "Build a path, ready to be signed."
+(defn build-args
+  "Build arguments, ready to be signed."
   [api-key opcode args]
   (->> (assoc args :apikey api-key :command opcode :response :json)
-       (unroll)
+       (transform-args)
        (sort-by first)
        (map serialize-pair)
        (s/join "&")))
 
-(defn signable-path
+(defn signable-args
   "Transform a string to its expected signable form"
   [path]
   (quote-plus (s/lower-case path)))
 
-(defn build-uri
+(defn build-input
   "Build a valid Cloustack URL for a given config, opcode and args triplet"
   [config opcode args]
   (let [{:keys [endpoint api-key api-secret]} config]
-    (let [path      (build-path api-key opcode args)
-          signature (sig/sha1-signature api-secret (signable-path path))]
-      (format "%s?%s&signature=%s" endpoint path (url-encode signature)))))
+    (let [args      (build-args api-key opcode args)
+          signature (sig/sha1-signature api-secret (signable-args args))]
+      (format "%s&signature=%s" args (url-encode signature)))))

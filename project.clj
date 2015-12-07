@@ -6,4 +6,4 @@
   :dependencies [[org.clojure/clojure    "1.7.0"]
                  [org.clojure/data.codec "0.1.0"]
                  [cheshire               "5.5.0"]
-                 [spootnik/net           "0.2.3"]])
+                 [spootnik/net           "0.2.4"]])

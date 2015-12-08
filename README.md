@@ -37,7 +37,7 @@ used to provide settings:
 
 <table>
 <tr><th>Property</th><th>Environment</th><th>Description</th></tr>
-<tr><td>clostack.api.key</td><td>CLOSTACK__API__KEY</td><td>Cloudstack API key</td></tr>
+<tr><td>clostack.api.key</td><td>CLOSTACK_API_KEY</td><td>Cloudstack API key</td></tr>
 <tr><td>clostack.api.secret</td><td>CLOSTACK_API_SECRET</td><td>Cloudstack API secret</td></tr>
 <tr><td>clostack.endpoint</td><td>CLOSTACK_ENDPOINT</td><td>Cloudstack API endpoint</td></tr>
 </table>
@@ -47,7 +47,7 @@ The configuration file allows for different profiles, two additional relevant va
 <table>
 <tr><th>Property</th><th>Environment</th><th>Description</th></tr>
 <tr><td>clostack.profile</td><td>CLOSTACK_PROFILE</td><td>Configuration profile name</td></tr>
-<tr><td>clostack.config.file</td><td>CLOSTACK__CONFIG__FILE</td><td>Configuration file location</td></tr>
+<tr><td>clostack.config.file</td><td>CLOSTACK_CONFIG_FILE</td><td>Configuration file location</td></tr>
 </table>
 
 A typical configuration will have the following aspect:

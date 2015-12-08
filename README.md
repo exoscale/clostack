@@ -38,7 +38,7 @@ used to provide settings:
 <table>
 <tr><th>Property</th><th>Environment</th><th>Description</th></tr>
 <tr><td>clostack.api.key</td><td>CLOSTACK__API__KEY</td><td>Cloudstack API key</td></tr>
-<tr><td>clostack.api.secret</td><td>CLOSTACK__API__SECRET</td><td>Cloudstack API secret</td></tr>
+<tr><td>clostack.api.secret</td><td>CLOSTACK_API_SECRET</td><td>Cloudstack API secret</td></tr>
 <tr><td>clostack.endpoint</td><td>CLOSTACK_ENDPOINT</td><td>Cloudstack API endpoint</td></tr>
 </table>
 

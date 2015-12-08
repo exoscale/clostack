@@ -39,7 +39,7 @@ used to provide settings:
 The easiest way to use clostack in your own projects is via Leiningen. Add the following dependency to your project.clj file:
 
 ```clojure
-[spootnik/clostack "0.1.4"]
+[spootnik/clostack "0.2.1"]
 ```
 
 ## Building Documentation
@@ -49,11 +49,19 @@ run `lein doc`
 ## Sample Code
 
 ```clojure
-(def client (http-client))
-						 
-(list-virtual-machines client)
+(def client (http-client {}))
 
-(let [resp (async-list-virtual-machines client)]
-  (http/await resp)
-  (http/string resp))
+;; Simple requests
+(request client :list-virtual-machines {})
+(request client :list-zones {})
+
+;; Provide a callback to execute when response comes back
+(async-request client :list-service-offerings {} (fn [resp] ...))
+
+;; Page through all records and return a consistent lazy map
+(paging-request client :list-events {})
+
+;; Execute body when response comes back
+(with-response [resp client :list-events]
+  (println (pr-str resp)))
 ```

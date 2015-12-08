@@ -1,4 +1,5 @@
 (ns clostack.payload
+  "Functions to work with appropriate cloudstack payloads."
   (:require [clojure.string     :as s]
             [clostack.signature :as sig]
             [clostack.utils     :refer [url-encode quote-plus]]))

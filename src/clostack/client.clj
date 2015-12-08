@@ -43,15 +43,14 @@
    (async-request client opcode {} handler))
   ([{:keys [config client]} opcode args handler]
    (let [op       (if (keyword? opcode) (api-name opcode) opcode)
-         payload  (payload/build-input config (api-name opcode) args)
+         payload  (payload/build-payload config (api-name opcode) args)
          callback (comp handler parse-response)
-         headers  {"Content-Length" (count payload)
-                   "Content-Type"   "application/x-www-form-urlencoded"}
+         headers  {"Content-Type"  "application/x-www-form-urlencoded"}
          req-map  {:uri            (:endpoint config)
                    :request-method :post
                    :headers        headers
                    :body           payload}]
-     (http/request client req-map callback))))
+     (http/async-request client req-map callback))))
 
 (defn request
   "Perform a synchronous HTTP request against the API"

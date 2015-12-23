@@ -1,6 +1,7 @@
 (ns clostack.signature
   "HMAC-SHA1 signing functions"
   (:require [clojure.string :as s]
+            [net.codec.b64  :as b64]
             [clostack.utils :refer [url-encode]])
   (:import javax.crypto.spec.SecretKeySpec
            javax.crypto.Mac
@@ -12,8 +13,4 @@
   [secret input]
   (let [key  (SecretKeySpec. (.getBytes secret) "HmacSHA1")
         mac  (doto (Mac/getInstance "HmacSHA1") (.init key))]
-    (->> input
-         .getBytes
-         (.doFinal mac)
-         DatatypeConverter/printBase64Binary
-         s/trim)))
+    (->> input .getBytes (.doFinal mac) (b64/b->b64))))

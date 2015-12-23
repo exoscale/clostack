@@ -80,10 +80,10 @@
    (paging-request client op args 1 nil))
   ([client op args page width]
    (when (or (nil? width) (pos? width))
-     (let [resp     (request client op (assoc args :page page :pagesize 100))
+     (let [resp     (request client op (assoc args :page page :pagesize 500))
            success? (= 2 (quot (:status resp) 100))]
        (when-not success?
-         (throw (ex-info "could not perform paging request" {})))
+         (throw (ex-info "could not perform paging request" {:resp resp})))
        (let [desc     (->> resp :body (map val) (filter map?) first)
              width    (or width (:count desc))
              elems    (->> desc (map val) (filter vector?) first)

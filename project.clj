@@ -1,4 +1,4 @@
-(defproject spootnik/clostack "0.2.3"
+(defproject spootnik/clostack "0.2.4"
   :description "clojure cloudstack client"
   :url "https://github.com/pyr/clostack"
   :license {:name "MIT License"}

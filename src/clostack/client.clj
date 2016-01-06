@@ -88,4 +88,5 @@
              width    (or width (:count desc))
              elems    (->> desc (map val) (filter vector?) first)
              pending  (- width (count elems))]
-         (lazy-cat elems (paging-request client op args (inc page) pending)))))))
+         (when (not (empty? elems))
+           (lazy-cat elems (paging-request client op args (inc page) pending))))))))

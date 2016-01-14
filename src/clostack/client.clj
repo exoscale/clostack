@@ -85,7 +85,7 @@
        (when-not success?
          (throw (ex-info "could not perform paging request" {:resp resp})))
        (let [desc     (->> resp :body (map val) (filter map?) first)
-             width    (or width (:count desc))
+             width    (or width (:count desc) 0)
              elems    (->> desc (map val) (filter vector?) first)
              pending  (- width (count elems))]
          (when (seq elems)

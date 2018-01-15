@@ -10,7 +10,7 @@
 (defn sha1-signature
   "Given a secret, compute the base64 encoded representation of a
    payload's Hmac-Sha1"
-  [secret input]
+  [^String secret ^String input]
   (let [key  (SecretKeySpec. (.getBytes secret) "HmacSHA1")
         mac  (doto (Mac/getInstance "HmacSHA1") (.init key))]
     (->> input .getBytes (.doFinal mac) (b64/b->b64))))

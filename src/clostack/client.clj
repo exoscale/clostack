@@ -1,6 +1,6 @@
 (ns clostack.client
   "A mostly generated wrapper to the cloudstack API."
-  (:require [clojure.string   :as s]
+  (:require [clojure.string   :as str]
             [cheshire.core    :as json]
             [net.http.client  :as http]
             [clostack.config  :as config]
@@ -18,8 +18,8 @@
   "Ensure that the response is JSON"
   [{:keys [headers] :as resp}]
   (let [ctype (get headers :content-type)]
-    (or (.contains ctype "javascript")
-        (.contains ctype "json"))))
+    (or (str/includes? ctype "javascript")
+        (str/includes? ctype "json"))))
 
 (defn parse-response
   "Ensure that response is JSON-formatted, if so parse it"
@@ -31,10 +31,10 @@
 (defn api-name
   "Given a hyphenated name, yield a camel case one"
   [s]
-  (let [[prelude & rest] (s/split (name s) #"-")
+  (let [[prelude & rest] (str/split (name s) #"-")
         capitalizer      #(if (#{"lb" "ssh" "vpc" "vm"} %)
-                            (s/upper-case %)
-                            (s/capitalize %))]
+                            (str/upper-case %)
+                            (str/capitalize %))]
     (apply str prelude (map capitalizer rest))))
 
 (defn async-request

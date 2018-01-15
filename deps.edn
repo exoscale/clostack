@@ -1,0 +1,5 @@
+{:paths ["src"]
+ :deps
+ {org.clojure/clojure {:mvn/version "1.9.0"}
+  spootnik/net        {:mvn/version "0.3.3-beta18"}
+  cheshire            {:mvn/version "5.8.0"}}}

@@ -100,9 +100,9 @@
       (throw (ex-info "could not perform polling request" {:resp resp})))
     (let [jobresult (get-in resp [:body :queryasyncjobresultresponse])
           jobstatus (:jobstatus jobresult)
-          result    (:jobresult jobresult)])
-    (case jobstatus
-      0 (do (Thread/sleep 1000)
-            (polling-request client jobid))
-      1 jobresult
-      (throw (ex-info "job failed" {:result result})))))
+          result    (:jobresult jobresult)]
+      (case jobstatus
+        0 (do (Thread/sleep 1000)
+              (polling-request client jobid))
+        1 jobresult
+        (throw (ex-info "job failed" {:result result}))))))

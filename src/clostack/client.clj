@@ -62,9 +62,7 @@
    (request client opcode {}))
   ([client opcode args]
    (let [p       (promise)
-         handler (fn [response]
-                   (update response :body a/<!!)
-                   (deliver p response))]
+         handler (fn [response] (deliver p response))]
      (async-request client opcode args handler)
      (deref p))))
 

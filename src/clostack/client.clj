@@ -1,10 +1,11 @@
 (ns clostack.client
-  "A mostly generated wrapper to the cloudstack API."
-  (:require [clojure.string   :as str]
-            [cheshire.core    :as json]
-            [net.http.client  :as http]
-            [clostack.config  :as config]
-            [clostack.payload :as payload]))
+  "A mostly generated wrapper to the CloudStack API."
+  (:require [clojure.string           :as str]
+            [clojure.core.async       :as a]
+            [cheshire.core            :as json]
+            [net.http.client          :as http]
+            [clostack.config          :as config]
+            [clostack.payload         :as payload]))
 
 (defn http-client
   "Create an HTTP client"
@@ -58,7 +59,9 @@
    (request client opcode {}))
   ([client opcode args]
    (let [p       (promise)
-         handler (fn [response] (deliver p response))]
+         handler (fn [response]
+                   (update response :body a/<!!)
+                   (deliver p response))]
      (async-request client opcode args handler)
      (deref p))))
 
@@ -101,7 +104,7 @@
     (let [jobresult (get-in resp [:body :queryasyncjobresultresponse])
           jobstatus (:jobstatus jobresult)
           result    (:jobresult jobresult)]
-      (case jobstatus
+      (case (int jobstatus)
         0 (do (Thread/sleep 1000)
               (polling-request client jobid))
         1 jobresult

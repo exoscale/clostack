@@ -4,6 +4,7 @@
             [clojure.core.async       :as a]
             [cheshire.core            :as json]
             [net.http.client          :as http]
+            [net.transform.string     :as st]
             [clostack.config          :as config]
             [clostack.payload         :as payload]))
 
@@ -25,6 +26,7 @@
 (defn parse-response
   "Ensure that response is JSON-formatted, if so parse it"
   [resp]
+  (update resp :body a/<!!)
   (if (json-response? resp)
     (update-in resp [:body] json/parse-string true)
     resp))
@@ -50,6 +52,7 @@
          req-map  {:uri            (:endpoint config)
                    :request-method :post
                    :headers        headers
+                   :transform      st/transform
                    :body           payload}]
      (http/async-request client req-map callback))))
 

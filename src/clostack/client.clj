@@ -16,20 +16,19 @@
    {:config (or config (config/init))
     :client (or client (http/build-client))}))
 
-(defn json-response?
-  "Ensure that the response is JSON"
-  [{:keys [headers] :as resp}]
-  (let [ctype (get headers :content-type)]
-    (or (str/includes? ctype "javascript")
-        (str/includes? ctype "json"))))
 
-(defn parse-response
+(def json-transform
+  "A JSON transform"
+  (st/transform-with #(json/parse-string % true)))
+
+(defn wrap-body
   "Ensure that response is JSON-formatted, if so parse it"
-  [resp]
-  (update resp :body a/<!!)
-  (if (json-response? resp)
-    (update-in resp [:body] json/parse-string true)
-    resp))
+  [body resp handler]
+  (handler (assoc resp :body body)))
+
+(defn wait-on-response
+  [resp handler]
+  (a/take! (:body resp) #(wrap-body % resp handler)))
 
 (defn api-name
   "Given a hyphenated name, yield a camel case one"
@@ -47,14 +46,13 @@
   ([{:keys [config client]} opcode args handler]
    (let [op       (if (keyword? opcode) (api-name opcode) opcode)
          payload  (payload/build-payload config (api-name opcode) args)
-         callback (comp handler parse-response)
          headers  {"Content-Type"  "application/x-www-form-urlencoded"}
          req-map  {:uri            (:endpoint config)
                    :request-method :post
                    :headers        headers
-                   :transform      st/transform
+                   :transform      json-transform
                    :body           payload}]
-     (http/async-request client req-map callback))))
+     (http/async-request client req-map #(wait-on-response % handler)))))
 
 (defn request
   "Perform a synchronous HTTP request against the API"

@@ -1,10 +1,12 @@
 (ns clostack.client
-  "A mostly generated wrapper to the cloudstack API."
-  (:require [clojure.string   :as str]
-            [cheshire.core    :as json]
-            [net.http.client  :as http]
-            [clostack.config  :as config]
-            [clostack.payload :as payload]))
+  "A mostly generated wrapper to the CloudStack API."
+  (:require [clojure.string           :as str]
+            [clojure.core.async       :as a]
+            [cheshire.core            :as json]
+            [net.http.client          :as http]
+            [net.transform.string     :as st]
+            [clostack.config          :as config]
+            [clostack.payload         :as payload]))
 
 (defn http-client
   "Create an HTTP client"
@@ -14,19 +16,19 @@
    {:config (or config (config/init))
     :client (or client (http/build-client))}))
 
-(defn json-response?
-  "Ensure that the response is JSON"
-  [{:keys [headers] :as resp}]
-  (let [ctype (get headers :content-type)]
-    (or (str/includes? ctype "javascript")
-        (str/includes? ctype "json"))))
 
-(defn parse-response
+(def json-transform
+  "A JSON transform"
+  (st/transform-with #(json/parse-string % true)))
+
+(defn wrap-body
   "Ensure that response is JSON-formatted, if so parse it"
-  [resp]
-  (if (json-response? resp)
-    (update-in resp [:body] json/parse-string true)
-    resp))
+  [body resp handler]
+  (handler (assoc resp :body body)))
+
+(defn wait-on-response
+  [resp handler]
+  (a/take! (:body resp) #(wrap-body % resp handler)))
 
 (defn api-name
   "Given a hyphenated name, yield a camel case one"
@@ -43,14 +45,15 @@
    (async-request client opcode {} handler))
   ([{:keys [config client]} opcode args handler]
    (let [op       (if (keyword? opcode) (api-name opcode) opcode)
-         payload  (payload/build-payload config (api-name opcode) args)
-         callback (comp handler parse-response)
-         headers  {"Content-Type"  "application/x-www-form-urlencoded"}
+         payload  (.getBytes (payload/build-payload config (api-name opcode) args))
+         headers  {:content-type "application/x-www-form-urlencoded"
+                   :content-length (count payload)}
          req-map  {:uri            (:endpoint config)
                    :request-method :post
                    :headers        headers
+                   :transform      json-transform
                    :body           payload}]
-     (http/async-request client req-map callback))))
+     (http/async-request client req-map #(wait-on-response % handler)))))
 
 (defn request
   "Perform a synchronous HTTP request against the API"
@@ -73,7 +76,7 @@
     (fn [~sym] ~@body)))
 
 (defn paging-request
-  "Perform a paging request. Elements are fetched by chunks of 100."
+  "Perform a paging request. Elements are fetched by chunks of 500."
   ([client op]
    (paging-request client op {} 1 nil))
   ([client op args]
@@ -90,3 +93,19 @@
              pending  (- width (count elems))]
          (when (seq elems)
            (lazy-cat elems (paging-request client op args (inc page) pending))))))))
+
+(defn polling-request
+  "Perform a polling request, in a blocking fashion. Fetches are done every second."
+  [client jobid]
+  (let [resp (request client :query-async-job-result {:jobid jobid})
+        success? (= 2 (quot (:status resp) 100))]
+    (when-not success?
+      (throw (ex-info "could not perform polling request" {:resp resp})))
+    (let [jobresult (get-in resp [:body :queryasyncjobresultresponse])
+          jobstatus (:jobstatus jobresult)
+          result    (:jobresult jobresult)]
+      (case (int jobstatus)
+        0 (do (Thread/sleep 1000)
+              (polling-request client jobid))
+        1 jobresult
+        (throw (ex-info "job failed" {:result result}))))))

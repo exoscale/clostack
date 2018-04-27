@@ -45,8 +45,9 @@
    (async-request client opcode {} handler))
   ([{:keys [config client]} opcode args handler]
    (let [op       (if (keyword? opcode) (api-name opcode) opcode)
-         payload  (payload/build-payload config (api-name opcode) args)
-         headers  {"Content-Type"  "application/x-www-form-urlencoded"}
+         payload  (.getBytes (payload/build-payload config (api-name opcode) args))
+         headers  {:content-type "application/x-www-form-urlencoded"
+                   :content-length (count payload)}
          req-map  {:uri            (:endpoint config)
                    :request-method :post
                    :headers        headers

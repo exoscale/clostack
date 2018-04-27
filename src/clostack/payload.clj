@@ -55,7 +55,7 @@
   [path]
   (quote-plus (s/lower-case path)))
 
-(defn build-payload
+(defn ^String build-payload
   "Build a valid Cloustack URL for a given config, opcode and args triplet"
   [config opcode args]
   (let [{:keys [endpoint api-key api-secret]} config]

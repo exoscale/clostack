@@ -33,7 +33,7 @@
   "Try getting configuration from the environment."
   []
   (let [names [:clostack.api.key :clostack.api.secret :clostack.endpoint]
-        keys  [:api-key :api-key :endpoint]
+        keys  [:api-key :api-secret :endpoint]
         vars  (mapv getenv names)]
     (when-not (some nil? vars)
       (reduce merge {} (partition 2 (interleave keys vars))))))

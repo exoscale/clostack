@@ -3,7 +3,6 @@
   (:require [clojure.string           :as str]
             [cheshire.core            :as json]
             [aleph.http               :as http]
-            [manifold.deferred        :as d]
             [byte-streams             :as bs]
             [clostack.config          :as config]
             [clostack.payload         :as payload]))

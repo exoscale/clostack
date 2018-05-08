@@ -1,34 +1,24 @@
 (ns clostack.client
   "A mostly generated wrapper to the CloudStack API."
   (:require [clojure.string           :as str]
-            [clojure.core.async       :as a]
             [cheshire.core            :as json]
-            [net.http.client          :as http]
-            [net.transform.string     :as st]
+            [aleph.http               :as http]
+            [manifold.deferred        :as d]
+            [byte-streams             :as bs]
             [clostack.config          :as config]
             [clostack.payload         :as payload]))
 
 (defn http-client
   "Create an HTTP client"
   ([]
-   (http-client {}))
-  ([{:keys [config client]}]
-   {:config (or config (config/init))
-    :client (or client (http/build-client))}))
-
-
-(def json-transform
-  "A JSON transform"
-  (st/transform-with #(json/parse-string % true)))
+   http-client {})
+  ([{:keys [config]}]
+   {:config (or config (config/init))}))
 
 (defn wrap-body
   "Ensure that response is JSON-formatted, if so parse it"
   [body resp handler]
   (handler (assoc resp :body body)))
-
-(defn wait-on-response
-  [resp handler]
-  (a/take! (:body resp) #(wrap-body % resp handler)))
 
 (defn api-name
   "Given a hyphenated name, yield a camel case one"
@@ -44,16 +34,15 @@
   ([client opcode handler]
    (async-request client opcode {} handler))
   ([{:keys [config client]} opcode args handler]
-   (let [op       (if (keyword? opcode) (api-name opcode) opcode)
-         payload  (.getBytes (payload/build-payload config (api-name opcode) args))
-         headers  {:content-type "application/x-www-form-urlencoded"
-                   :content-length (count payload)}
-         req-map  {:uri            (:endpoint config)
-                   :request-method :post
-                   :headers        headers
-                   :transform      json-transform
-                   :body           payload}]
-     (http/async-request client req-map #(wait-on-response % handler)))))
+   (let [op          (if (keyword? opcode) (api-name opcode) opcode)
+         params      (payload/build-payload config (api-name opcode) args)
+         uri         (:endpoint config)
+         response    @(http/post uri {:form-params params})]
+     (handler (-> response
+                  (select-keys [:status :headers :body])
+                  (update :body #(-> %
+                                     bs/to-reader
+                                     (json/parse-stream true))))))))
 
 (defn request
   "Perform a synchronous HTTP request against the API"

@@ -43,9 +43,9 @@
 
 (defn build-args
   "Build arguments, ready to be signed."
-  [api-key opcode args]
-  (->> (assoc args :apikey api-key :command opcode :response :json)
-       (transform-args)
+  [args]
+  (->> args
+       transform-args
        (sort-by first)
        (map serialize-pair)
        (s/join "&")))
@@ -55,10 +55,16 @@
   [path]
   (quote-plus (s/lower-case path)))
 
-(defn ^String build-payload
-  "Build a valid Cloustack URL for a given config, opcode and args triplet"
+(defn build-payload
+  "Build a signed payload for a given config, opcode and args triplet"
   [config opcode args]
   (let [{:keys [endpoint api-key api-secret]} config]
-    (let [args      (build-args api-key opcode args)
-          signature (sig/sha1-signature api-secret (signable-args args))]
-      (format "%s&signature=%s" args (url-encode signature)))))
+    (let [args      (assoc args :apikey api-key :command opcode :response :json)
+          query     (build-args args)
+          signature (->> query
+                         signable-args
+                         (sig/sha1-signature api-secret))]
+      (concat (->> args
+                   transform-args
+                   (sort-by first))
+              [[:signature signature]]))))

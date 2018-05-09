@@ -11,8 +11,11 @@
   "Create an HTTP client"
   ([]
    http-client {})
-  ([{:keys [config]}]
-   {:config (or config (config/init))}))
+  ([{:keys [config pool]}]
+   {:config (or config (config/init))
+    :opts (if (some? pool)
+              {:pool pool}
+              {})}))
 
 (defn wrap-body
   "Ensure that response is JSON-formatted, if so parse it"
@@ -32,11 +35,12 @@
   "Asynchronous request, will execute handler when response comes back."
   ([client opcode handler]
    (async-request client opcode {} handler))
-  ([{:keys [config client]} opcode args handler]
+  ([{:keys [config opts]} opcode args handler]
    (let [op          (if (keyword? opcode) (api-name opcode) opcode)
          params      (payload/build-payload config (api-name opcode) args)
          uri         (:endpoint config)
-         response    @(http/post uri {:form-params params})]
+         response    @(http/post uri (-> opts
+                                         (assoc :form-params params)))]
      (handler (-> response
                   (select-keys [:status :headers :body])
                   (update :body #(-> %

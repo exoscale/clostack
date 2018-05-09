@@ -83,14 +83,11 @@
   "Perform a polling request, in a blocking fashion. Fetches are done every second."
   [client jobid]
   (let [resp (request client :query-async-job-result {:jobid jobid})
-        success? (= 2 (quot (:status resp) 100))]
-    (when-not success?
-      (throw (ex-info "could not perform polling request" {:resp resp})))
-    (let [jobresult (get-in resp [:body :queryasyncjobresultresponse])
-          jobstatus (:jobstatus jobresult)
-          result    (:jobresult jobresult)]
-      (case (int jobstatus)
-        0 (do (Thread/sleep 1000)
-              (polling-request client jobid))
-        1 jobresult
-        (throw (ex-info "job failed" {:result result}))))))
+        jobresult (get-in resp [:body :queryasyncjobresultresponse])
+        jobstatus (:jobstatus jobresult)
+        result    (:jobresult jobresult)]
+    (case (int jobstatus)
+      0 (do (Thread/sleep 1000)
+            (polling-request client jobid))
+      1 jobresult
+      (throw (ex-info "job failed" {:result result})))))

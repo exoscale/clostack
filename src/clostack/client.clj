@@ -76,28 +76,22 @@
   ([client op args page width]
    (when (or (nil? width) (pos? width))
      (let [resp     (request client op (assoc args :page page :pagesize 500))
-           success? (= 2 (quot (:status resp) 100))]
-       (when-not success?
-         (throw (ex-info "could not perform paging request" {:resp resp})))
-       (let [desc     (->> resp :body (map val) (filter map?) first)
-             width    (or width (:count desc) 0)
-             elems    (->> desc (map val) (filter vector?) first)
-             pending  (- width (count elems))]
-         (when (seq elems)
-           (lazy-cat elems (paging-request client op args (inc page) pending))))))))
+           desc     (->> resp :body (map val) (filter map?) first)
+           width    (or width (:count desc) 0)
+           elems    (->> desc (map val) (filter vector?) first)
+           pending  (- width (count elems))]
+       (when (seq elems)
+         (lazy-cat elems (paging-request client op args (inc page) pending)))))))
 
 (defn polling-request
   "Perform a polling request, in a blocking fashion. Fetches are done every second."
   [client jobid]
   (let [resp (request client :query-async-job-result {:jobid jobid})
-        success? (= 2 (quot (:status resp) 100))]
-    (when-not success?
-      (throw (ex-info "could not perform polling request" {:resp resp})))
-    (let [jobresult (get-in resp [:body :queryasyncjobresultresponse])
-          jobstatus (:jobstatus jobresult)
-          result    (:jobresult jobresult)]
-      (case (int jobstatus)
-        0 (do (Thread/sleep 1000)
-              (polling-request client jobid))
-        1 jobresult
-        (throw (ex-info "job failed" {:result result}))))))
+        jobresult (get-in resp [:body :queryasyncjobresultresponse])
+        jobstatus (:jobstatus jobresult)
+        result    (:jobresult jobresult)]
+    (case (int jobstatus)
+      0 (do (Thread/sleep 1000)
+            (polling-request client jobid))
+      1 jobresult
+      (throw (ex-info "job failed" {:result result})))))

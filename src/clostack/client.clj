@@ -14,8 +14,8 @@
   ([{:keys [config pool]}]
    {:config (or config (config/init))
     :opts (if (some? pool)
-              {:pool pool}
-              {})}))
+            {:pool pool}
+            {})}))
 
 (defn wrap-body
   "Ensure that response is JSON-formatted, if so parse it"
@@ -94,4 +94,5 @@
       0 (do (Thread/sleep 1000)
             (polling-request client jobid))
       1 jobresult
-      (throw (ex-info "job failed" {:result result})))))
+      (throw (ex-info (str "job " jobid " failed")
+                      {:jobresult jobresult})))))

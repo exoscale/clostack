@@ -10,12 +10,10 @@
 (defn http-client
   "Create an HTTP client"
   ([]
-   http-client {})
-  ([{:keys [config pool]}]
+   (http-client {}))
+  ([{:keys [config opts] :or {opts {}}}]
    {:config (or config (config/init))
-    :opts (if (some? pool)
-            {:pool pool}
-            {})}))
+    :opts opts}))
 
 (defn wrap-body
   "Ensure that response is JSON-formatted, if so parse it"

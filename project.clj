@@ -7,4 +7,4 @@
   :global-vars {*warn-on-reflection* true}
   :dependencies [[org.clojure/clojure    "1.9.0"]
                  [cheshire               "5.8.0"]
-                 [aleph                  "0.4.4"]])
+                 [aleph                  "0.4.6"]])

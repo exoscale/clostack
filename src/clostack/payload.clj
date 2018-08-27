@@ -55,16 +55,20 @@
   [path]
   (quote-plus (s/lower-case path)))
 
+(defn sign
+  "Sign the given query"
+  [query api-secret]
+  (->> query
+       build-args
+       signable-args
+       (sig/sha1-signature api-secret)))
+
 (defn build-payload
   "Build a signed payload for a given config, opcode and args triplet"
-  [config opcode args]
-  (let [{:keys [endpoint api-key api-secret]} config]
-    (let [args      (assoc args :apikey api-key :command opcode :response :json)
-          query     (build-args args)
-          signature (->> query
-                         signable-args
-                         (sig/sha1-signature api-secret))]
-      (concat (->> args
-                   transform-args
-                   (sort-by first))
-              [[:signature signature]]))))
+  ([config opcode args]
+    (build-payload config (assoc args :command opcode)))
+  ([config args]
+    (let [{:keys    [api-key api-secret]} config
+          args      (assoc args :apikey api-key :response "json")
+          signature (sign args api-secret)]
+      (assoc args :signature signature))))

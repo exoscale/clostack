@@ -7,13 +7,13 @@
 (defn serialize-pair
   "Encode a key/value pair"
   [[k v]]
-  (str (s/lower-case (name k)) "=" (url-encode v)))
+  (str (name k) "=" (url-encode v)))
 
 (defn transform-map
   "Encode a map argument appropriately"
   [top-k [i m]]
   (for [[k v] m]
-    [(format "%s[%d].%s" (name top-k) i (s/lower-case (name k))) (str v)]))
+    [(format "%s[%d].%s" (name top-k) i (name k)) (str v)]))
 
 (defn transform-maps
   "For a list of maps, produce the expected key/value pairs."
@@ -23,7 +23,7 @@
 (defn transform-arg
   "transform argument into a list of key/value pairs."
   [[k v]]
-  (let [k (s/lower-case (name k))
+  (let [k (name k)
         v (if (keyword? v) (name v) v)]
     (when (and v (if (sequential? v) (not-empty v) true))
       (cond

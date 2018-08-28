@@ -1,6 +1,6 @@
-(defproject spootnik/clostack "0.2.11"
+(defproject exoscale/clostack "0.2.11"
   :description "clojure cloudstack client"
-  :url "https://github.com/pyr/clostack"
+  :url "https://github.com/exoscale/clostack"
   :license {:name "MIT License"}
   :plugins [[codox "0.10.3"]
             [lein-ancient "0.6.15"]]

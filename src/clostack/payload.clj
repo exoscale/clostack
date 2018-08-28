@@ -7,13 +7,13 @@
 (defn serialize-pair
   "Encode a key/value pair"
   [[k v]]
-  (str (s/lower-case (name k)) "=" (url-encode v)))
+  (str (name k) "=" (url-encode v)))
 
 (defn transform-map
   "Encode a map argument appropriately"
   [top-k [i m]]
   (for [[k v] m]
-    [(format "%s[%d].%s" (name top-k) i (s/lower-case (name k))) (str v)]))
+    [(format "%s[%d].%s" (name top-k) i (name k)) (str v)]))
 
 (defn transform-maps
   "For a list of maps, produce the expected key/value pairs."
@@ -23,7 +23,7 @@
 (defn transform-arg
   "transform argument into a list of key/value pairs."
   [[k v]]
-  (let [k (s/lower-case (name k))
+  (let [k (name k)
         v (if (keyword? v) (name v) v)]
     (when (and v (if (sequential? v) (not-empty v) true))
       (cond
@@ -55,16 +55,20 @@
   [path]
   (quote-plus (s/lower-case path)))
 
+(defn sign
+  "Sign the given query"
+  [query api-secret]
+  (->> query
+       build-args
+       signable-args
+       (sig/sha1-signature api-secret)))
+
 (defn build-payload
   "Build a signed payload for a given config, opcode and args triplet"
-  [config opcode args]
-  (let [{:keys [endpoint api-key api-secret]} config]
-    (let [args      (assoc args :apikey api-key :command opcode :response :json)
-          query     (build-args args)
-          signature (->> query
-                         signable-args
-                         (sig/sha1-signature api-secret))]
-      (concat (->> args
-                   transform-args
-                   (sort-by first))
-              [[:signature signature]]))))
+  ([config opcode args]
+    (build-payload config (assoc args :command opcode)))
+  ([config args]
+    (let [{:keys    [api-key api-secret]} config
+          args      (assoc args :apikey api-key :response "json")
+          signature (sign args api-secret)]
+      (assoc args :signature signature))))

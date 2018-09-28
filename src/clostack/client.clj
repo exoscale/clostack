@@ -73,7 +73,8 @@
    (paging-request client op args 1 nil))
   ([client op args page width]
    (when (or (nil? width) (pos? width))
-     (let [resp     (request client op (assoc args :page page :pagesize 500))
+     (let [pagesize (get-in client [:config :page-size] 500)
+           resp     (request client op (assoc args :page page :pagesize (int pagesize)))
            desc     (->> resp :body (map val) (filter map?) first)
            width    (or width (:count desc) 0)
            elems    (->> desc (map val) (filter vector?) first)

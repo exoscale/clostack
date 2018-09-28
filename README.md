@@ -23,7 +23,7 @@ argument map:
   * `api-key`: cloustack api key
   * `api-secret`: cloustack api secret
   * `endpoint`: URL where cloudstack lives
-* `client`: a netty HTTP client, as provided by https://github.com/pyr/net  
+  * `page-size`: page size (by default 500)
 
 The `api-key`, `api-secret` and `endpoint` may also be fetched from the environment
 or a configuration file.

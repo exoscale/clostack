@@ -1,4 +1,4 @@
-(defproject exoscale/clostack "0.2.11"
+(defproject exoscale/clostack "0.2.12"
   :description "clojure cloudstack client"
   :url "https://github.com/exoscale/clostack"
   :license {:name "MIT License"}
@@ -6,5 +6,5 @@
             [lein-ancient "0.6.15"]]
   :global-vars {*warn-on-reflection* true}
   :dependencies [[org.clojure/clojure    "1.9.0"]
-                 [cheshire               "5.8.0"]
+                 [cheshire               "5.8.1"]
                  [aleph                  "0.4.6"]])

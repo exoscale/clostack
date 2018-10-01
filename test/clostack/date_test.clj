@@ -1,5 +1,5 @@
 (ns clostack.date-test
-  (:require [clostack.date :refer [is-expired?]]
+  (:require [clostack.date :refer [is-expired? expires-args]]
             [clj-time.core :refer [date-time]]
             [clojure.test :refer :all]))
 
@@ -22,3 +22,11 @@
   (testing "other timezone and milliseconds"
     (is (is-expired? "2018-01-11T12:12:12.000+02:00" (date-time 2018 1 11 12 12 12)))
     (is (not (is-expired? "2018-01-12T12:12:12.000-02:00" (date-time 2018 1 12 12 12 12))))))
+
+(deftest signature-v3
+  (testing "expires and signatureVersion args"
+           (is (:expires (expires-args 0)))
+           (is (= (:signatureVersion (expires-args 0))
+                  "3")))
+  (testing "negative expiration time produces nothing"
+           (is (not (:expires (expires-args -1))))))

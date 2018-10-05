@@ -33,6 +33,11 @@
       (parse fmt s)
       (catch IllegalArgumentException _))))
 
+(def formats [:date-hour-minute-second
+              :date-hour-minute-second-ms
+              :date-time
+              :date-time-no-ms])
+
 (defn is-expired?
   "If now is after the expiration, then it's expired.
 
@@ -42,14 +47,7 @@
    (is-expired? expires (now)))
   ([expires now]
     ;; it accepts non timezones values (which cloudstack probably doesn't)
-   (let [formats [:date-hour-minute-second
-                  :date-hour-minute-second-ms
-                  :date-time
-                  :date-time-no-ms]
-         dt      (first (for [fmt formats
-                              :let [date (safe-parse fmt expires)]
-                              :when date]
-                          date))]
-     (if dt
-       (after? now dt)
-       false))))
+    (first (for [fmt formats
+                 :let [date (safe-parse fmt expires)]
+                 :when (and date (after? now date))]
+                true))))

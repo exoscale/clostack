@@ -1,8 +1,13 @@
 (ns clostack.payload
   "Functions to work with appropriate cloudstack payloads."
-  (:require [clojure.string     :as s]
+  (:require [clj-time.format    :as f]
+            [clj-time.core      :as t]
+            [clojure.string     :as s]
+            [clostack.date      :refer [expires-args]]
             [clostack.signature :as sig]
             [clostack.utils     :refer [url-encode quote-plus]]))
+
+(def default-expiration 600)
 
 (defn serialize-pair
   "Encode a key/value pair"
@@ -67,8 +72,12 @@
   "Build a signed payload for a given config, opcode and args triplet"
   ([config opcode args]
     (build-payload config (assoc args :command opcode)))
-  ([config args]
-    (let [{:keys    [api-key api-secret]} config
-          args      (assoc args :apikey api-key :response "json")
-          signature (sign args api-secret)]
+  ([{:keys [api-key api-secret expiration]} args]
+    (let [exp-s      (try (int expiration)
+                          (catch Exception _ default-expiration))
+          exp-args   (expires-args exp-s)
+          args       (-> args
+                         (assoc :apikey api-key :response "json")
+                         (merge exp-args))
+          signature  (sign args api-secret)]
       (assoc args :signature signature))))

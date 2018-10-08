@@ -14,7 +14,6 @@
   ([expiration now]
    (if (>= expiration 0)
      {:signatureVersion "3"
-         ;; XXX one day, cloudstack will be able to handle more formats
       :expires          (unparse cloudstack-expires-formatter
                                  (plus now (seconds expiration)))}
      {})))
@@ -44,7 +43,6 @@
   ([expires]
    (is-expired? expires (now)))
   ([expires now]
-    ;; it accepts non timezones values (which cloudstack probably doesn't)
    (first (for [fmt formats
                 :let [date (safe-parse fmt expires)]
                 :when (and date (after? now date))]

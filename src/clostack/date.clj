@@ -1,8 +1,9 @@
 (ns clostack.date
   "Date manipulation functions."
-  (:require [clj-time.format :refer [parse unparse-local formatters]]
-            [clj-time.coerce :refer [to-local-date-time]]
+  (:require [clj-time.format :refer [parse unparse formatter formatters]]
             [clj-time.core   :refer [seconds plus now after?]]))
+
+(def cloudstack-expires-formatter (formatter "yyyy-MM-dd'T'HH:mm:ssZ"))
 
 (defn expires-args
   "Builds the expires argument map. Expiration is in seconds.
@@ -11,15 +12,12 @@
   ([expiration]
    (expires-args expiration (now)))
   ([expiration now]
-    (if (>= expiration 0)
-        {:signatureVersion "3"
+   (if (>= expiration 0)
+     {:signatureVersion "3"
          ;; XXX one day, cloudstack will be able to handle more formats
-         :expires          (str (unparse-local (:date-time-no-ms formatters)
-                                               (-> now
-                                                   (plus (seconds expiration))
-                                                   to-local-date-time))
-                                "+0000")}
-        {})))
+      :expires          (unparse cloudstack-expires-formatter
+                                 (plus now (seconds expiration)))}
+     {})))
 
 (defn safe-parse
   "Parse a date time string with the given formatter.
@@ -47,7 +45,7 @@
    (is-expired? expires (now)))
   ([expires now]
     ;; it accepts non timezones values (which cloudstack probably doesn't)
-    (first (for [fmt formats
-                 :let [date (safe-parse fmt expires)]
-                 :when (and date (after? now date))]
-                true))))
+   (first (for [fmt formats
+                :let [date (safe-parse fmt expires)]
+                :when (and date (after? now date))]
+            true))))

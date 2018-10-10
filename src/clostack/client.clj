@@ -3,12 +3,24 @@
   (:require [clojure.string           :as str]
             [cheshire.core            :as json]
             [aleph.http               :as http]
+            [manifold.deferred        :as d]
             [byte-streams             :as bs]
             [clostack.config          :as config]
             [clostack.payload         :as payload]))
 
 (defn http-client
-  "Create an HTTP client"
+  "Create an HTTP client. Takes a map of two
+   optional keys, if no configuration is present,
+   it is picked up from the environment:
+
+     - :config a map of the following optional:
+       - :endpoint HTTP endpoint for the API
+       - :api-key
+       - :api-secret
+       - :request-method (:get or :post, default to :post)
+       - :page-size number of entities to fetch per page (500 per default)
+     - :opts: an opt map handed out to aleph's http client
+     "
   ([]
    (http-client {}))
   ([{:keys [config opts] :or {opts {}}}]
@@ -22,28 +34,55 @@
 
 (defn api-name
   "Given a hyphenated name, yield a camel case one"
-  [s]
-  (let [[prelude & rest] (str/split (name s) #"-")
-        capitalizer      #(if (#{"lb" "ssh" "vpc" "vm"} %)
-                            (str/upper-case %)
-                            (str/capitalize %))]
-    (apply str prelude (map capitalizer rest))))
+  [op]
+  (cond
+    (keyword? op)
+    (let [[prelude & rest] (str/split (name op) #"-")
+          capitalizer      #(if (#{"lb" "ssh" "vpc" "vm"} %)
+                              (str/upper-case %)
+                              (str/capitalize %))]
+      (apply str prelude (map capitalizer rest)))
+
+    (string? op)
+    op
+
+    :else
+    (throw (IllegalArgumentException. "cannot coerce to opcode"))))
+
+(defn http-get
+  [uri opts params]
+  (http/get uri (assoc opts :query-params params)))
+
+(defn http-post
+  [uri opts params]
+  (http/post uri (assoc opts :form-params params)))
+
+(def request-fns
+  {:get  http-get
+   :post http-post})
+
+(defn request-fn
+  [config]
+  (get request-fns
+       (some-> config :request-method name str/lower-case keyword)
+       http-post))
+
+(defn parse-body
+  [response]
+  (let [parse-json-body #(-> % bs/to-reader (json/parse-stream true))]
+    (update response :body parse-json-body)))
 
 (defn async-request
   "Asynchronous request, will execute handler when response comes back."
   ([client opcode handler]
    (async-request client opcode {} handler))
   ([{:keys [config opts]} opcode args handler]
-   (let [op          (if (keyword? opcode) (api-name opcode) opcode)
-         params      (payload/build-payload config (api-name opcode) args)
-         uri         (:endpoint config)
-         response    @(http/post uri (-> opts
-                                         (assoc :form-params params)))]
-     (handler (-> response
-                  (select-keys [:status :headers :body])
-                  (update :body #(-> %
-                                     bs/to-reader
-                                     (json/parse-stream true))))))))
+   (let [params       (payload/build-payload config (api-name opcode) args)
+         sanitize     #(select-keys % [:status :headers :body])
+         send-request (request-fn config)]
+     (-> (send-request (:endpoint config) opts params)
+         (d/chain sanitize parse-body handler)
+         (d/catch handler)))))
 
 (defn request
   "Perform a synchronous HTTP request against the API"

@@ -70,7 +70,7 @@ be used, setting clostack.profile to `staging` would switch this mode of operati
 The easiest way to use clostack in your own projects is via Leiningen. Add the following dependency to your project.clj file:
 
 ```clojure
-[exoscale/clostack "0.2.13"]
+[exoscale/clostack "0.2.14"]
 ```
 
 ## Building Documentation

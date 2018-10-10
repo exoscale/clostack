@@ -73,9 +73,11 @@ The easiest way to use clostack in your own projects is via Leiningen. Add the f
 [exoscale/clostack "0.2.14"]
 ```
 
-## Building Documentation
+## Documentation
 
-run `lein doc` 
+https://exoscale.github.io/clostack
+
+
 
 ## Sample Code
 

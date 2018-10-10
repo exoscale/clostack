@@ -1,0 +1,3 @@
+(require '[clostack.client :as client])
+(def c (client/http-client {:config {:endpoint "https://ppai.exoscale.ch/compute" :api-key "EXO4e3547cc42993046b422b2b1" :api-secret "LZl90D61ObcQ6slosoeowZldJuI_7i6D0RI9oYDWxM0"}}))
+(client/request c :listAccounts)

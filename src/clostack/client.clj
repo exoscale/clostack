@@ -89,10 +89,7 @@
   ([client opcode]
    (request client opcode {}))
   ([client opcode args]
-   (let [p       (promise)
-         handler (fn [response] (deliver p response))]
-     (async-request client opcode args handler)
-     (deref p))))
+   @(async-request client opcode args identity)))
 
 (defmacro with-response
   "Perform an asynchronous response, using body as the function body

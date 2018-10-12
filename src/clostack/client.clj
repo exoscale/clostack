@@ -72,6 +72,17 @@
   (let [parse-json-body #(-> % bs/to-reader (json/parse-stream true))]
     (update response :body parse-json-body)))
 
+(defn prepare-error-fn
+  [f]
+  (fn [e]
+    (f
+     (if-let [data (ex-data e)]
+       (-> data
+           (select-keys [:status :headers :body])
+           (parse-body)
+           (assoc :exception e))
+       e))))
+
 (defn async-request
   "Asynchronous request, will execute handler when response comes back."
   ([client opcode handler]
@@ -82,7 +93,7 @@
          send-request (request-fn config)]
      (-> (send-request (:endpoint config) opts params)
          (d/chain sanitize parse-body handler)
-         (d/catch handler)))))
+         (d/catch (prepare-error-fn handler))))))
 
 (defn request
   "Perform a synchronous HTTP request against the API"

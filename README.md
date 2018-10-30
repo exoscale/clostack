@@ -2,6 +2,7 @@ clostack: clojure cloudstack client
 ===================================
 
 [![Build Status](https://secure.travis-ci.org/exoscale/clostack.png)](http://travis-ci.org/exoscale/clostack)
+[![Clojars Project](https://img.shields.io/clojars/v/exoscale/clostack.svg)](https://clojars.org/exoscale/clostack)
 
 
 A simple clojure cloudstack client.

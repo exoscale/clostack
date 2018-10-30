@@ -11,9 +11,10 @@
   "Given a secret, compute the base64 encoded representation of a
    payload's Hmac-Sha1"
   [^String secret ^String input]
+  {:pre [(seq secret)]}
   (let [key  (SecretKeySpec. (.getBytes secret) "HmacSHA1")
         mac  (doto (Mac/getInstance "HmacSHA1") (.init key))]
-    (->> input
-         .getBytes
-         (.doFinal mac)
-         (.encodeToString (Base64/getEncoder)))))
+    (some->> input
+             .getBytes
+             (.doFinal mac)
+             (.encodeToString (Base64/getEncoder)))))

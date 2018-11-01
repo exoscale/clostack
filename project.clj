@@ -1,4 +1,4 @@
-(defproject exoscale/clostack "0.2.16"
+(defproject exoscale/clostack "0.2.17-SNAPSHOT"
   :description "clojure cloudstack client"
   :url "https://github.com/exoscale/clostack"
   :license {:name "MIT License"}
@@ -10,5 +10,5 @@
           :metadata    {:doc/format :markdown}}
   :dependencies [[org.clojure/clojure    "1.9.0"]
                  [cheshire               "5.8.1"]
-                 [clj-time               "0.14.4"]
+                 [clj-time               "0.15.1"]
                  [aleph                  "0.4.6"]])

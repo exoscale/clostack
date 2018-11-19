@@ -1,11 +1,8 @@
 (ns clostack.signature
   "HMAC-SHA1 signing functions"
-  (:require [clojure.string            :as s]
-            [clostack.utils            :refer [url-encode]])
   (:import javax.crypto.spec.SecretKeySpec
            javax.crypto.Mac
-           java.util.Base64
-           javax.xml.bind.DatatypeConverter))
+           java.util.Base64))
 
 (defn sha1-signature
   "Given a secret, compute the base64 encoded representation of a

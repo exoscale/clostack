@@ -8,7 +8,7 @@
   :codox {:source-uri  "https://github.com/exoscale/clostack/blob/{version}/{filepath}#L{line}"
           :output-path "docs"
           :metadata    {:doc/format :markdown}}
-  :dependencies [[org.clojure/clojure    "1.9.0"]
+  :dependencies [[org.clojure/clojure    "1.10.0-beta6"]
                  [cheshire               "5.8.1"]
                  [clj-time               "0.15.1"]
                  [aleph                  "0.4.6"]])

@@ -134,8 +134,7 @@
   [client jobid]
   (let [resp (request client :query-async-job-result {:jobid jobid})
         jobresult (get-in resp [:body :queryasyncjobresultresponse])
-        jobstatus (:jobstatus jobresult)
-        result    (:jobresult jobresult)]
+        jobstatus (:jobstatus jobresult)]
     (case (int jobstatus)
       0 (do (Thread/sleep 1000)
             (polling-request client jobid))

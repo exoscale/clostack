@@ -8,3 +8,17 @@
                  (sha1-signature nil "input"))))
   (testing "sha1 signature without an input"
     (is (nil? (sha1-signature "secret" nil)))))
+
+
+
+(deftest sha1-signature-input
+  (testing "string and byte inputs give the same sig"
+    (let [secret "secret"
+          input "input"
+          sig1 (sha1-signature secret input)
+          sig2 (sha1-signature secret (.getBytes input))]
+      (is (= sig1 sig2 "MEQPNt3CgJu9TIsfN6boDXWIwwM="))))
+
+  (testing "other input type fails"
+    (is (thrown? Exception
+                 (sha1-signature "secret" 42)))))

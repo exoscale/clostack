@@ -16,7 +16,6 @@
     (string? input)
     (.getBytes ^String input)
 
-
     (byte-array? input)
     input
 

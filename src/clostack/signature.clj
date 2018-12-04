@@ -10,6 +10,8 @@
 
 
 (defn to-bytes
+  "Tries to coerce an input to a byte array. Ignores nil.
+  Throws an error when gives up."
   [input]
   (cond
 

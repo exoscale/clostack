@@ -25,6 +25,8 @@
 
 
 (defn sha1-signature
+  "Given a secret, compute the base64 encoded representation of a
+   payload's Hmac-Sha1"
   [^String secret input]
   {:pre [(seq secret)]}
 

@@ -15,9 +15,10 @@
   (testing "string and byte inputs give the same sig"
     (let [secret "secret"
           input "input"
+          sig0 "MEQPNt3CgJu9TIsfN6boDXWIwwM="
           sig1 (sha1-signature secret input)
           sig2 (sha1-signature secret (.getBytes input))]
-      (is (= sig1 sig2 "MEQPNt3CgJu9TIsfN6boDXWIwwM="))))
+      (is (= sig0 sig1 sig2))))
 
   (testing "other input type fails"
     (is (thrown? Exception

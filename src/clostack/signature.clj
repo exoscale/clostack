@@ -1,28 +1,9 @@
 (ns clostack.signature
   "HMAC-SHA1 signing functions"
+  (:require [byte-streams :as bs])
   (:import javax.crypto.spec.SecretKeySpec
            javax.crypto.Mac
            java.util.Base64))
-
-
-(def byte-array?
-  (partial instance? (Class/forName "[B")))
-
-
-(defn to-bytes
-  "Tries to coerce an input to a byte array. Ignores nil.
-  Throws an error when gives up."
-  [input]
-  (cond
-
-    (string? input)
-    (.getBytes ^String input)
-
-    (byte-array? input)
-    input
-
-    (some? input)
-    (throw (Exception. (format "Wrong input: %s" input)))))
 
 
 (defn sha1-signature
@@ -31,10 +12,11 @@
   [^String secret input]
   {:pre [(seq secret)]}
 
-  (let [key   (SecretKeySpec. (.getBytes secret) "HmacSHA1")
-        mac   (doto (Mac/getInstance "HmacSHA1") (.init key))
-        bytes (to-bytes input)]
+  (let [key (SecretKeySpec. (.getBytes secret) "HmacSHA1")
+        mac (doto (Mac/getInstance "HmacSHA1") (.init key))
+        arr (when input
+              (bs/to-byte-array input))]
 
-    (some->> bytes
+    (some->> arr
              (.doFinal mac)
              (.encodeToString (Base64/getEncoder)))))

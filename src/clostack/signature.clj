@@ -13,10 +13,9 @@
   {:pre [(seq secret)]}
 
   (let [key (SecretKeySpec. (.getBytes secret) "HmacSHA1")
-        mac (doto (Mac/getInstance "HmacSHA1") (.init key))
-        arr (when input
-              (bs/to-byte-array input))]
+        mac (doto (Mac/getInstance "HmacSHA1") (.init key))]
 
-    (some->> arr
+    (some->> input
+             bs/to-byte-array
              (.doFinal mac)
              (.encodeToString (Base64/getEncoder)))))

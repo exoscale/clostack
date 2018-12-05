@@ -1,4 +1,4 @@
-(defproject exoscale/clostack "0.2.17-SNAPSHOT"
+(defproject exoscale/clostack "0.2.17"
   :description "clojure cloudstack client"
   :url "https://github.com/exoscale/clostack"
   :license {:name "MIT License"}

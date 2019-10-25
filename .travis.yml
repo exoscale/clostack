@@ -1,7 +1,7 @@
 language: clojure
+dist: bionic
 sudo: false
 lein: lein
-script: lein do clean, javac, test
 jdk:
   - openjdk9
   - oraclejdk9
@@ -9,6 +9,6 @@ jdk:
 branches:
   except:
     - gh-pages
-# cache:
-#   directories:
-#   - $HOME/.m2
+cache:
+  directories:
+  - $HOME/.m2

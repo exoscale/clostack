@@ -1,5 +1,5 @@
 language: clojure
-sudo: false
+sudo: required
 lein: lein
 script: lein do clean, javac, test
 jdk:

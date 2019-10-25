@@ -2,8 +2,8 @@ sudo: false
 language: clojure
 lein: lein
 jdk:
-  - openjdk8
-  - oraclejdk8
+  - openjdk9
+  - oraclejdk9
   - openjdk11
 branches:
   except:

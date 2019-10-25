@@ -45,7 +45,7 @@
   (let [duplicated (->> (group-by (comp clojure.string/lower-case key) m)
                         (filter (comp (partial not= 1)count second))
                         (map first))]
-    duplicated))
+    (seq duplicated)))
 
 (defn transform-args
   "Transform arguments into a vector of key/value pairs."

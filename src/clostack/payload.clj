@@ -43,7 +43,7 @@
 
 (defn duplicated-keys [m]
   (let [duplicated (->> (group-by (comp clojure.string/lower-case key) m)
-                        (filter (comp (partial not= 1)count second))
+                        (filter (comp (partial < 1)count second))
                         (map first))]
     (seq duplicated)))
 

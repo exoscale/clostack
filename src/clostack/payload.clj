@@ -41,9 +41,17 @@
         :else
         [[k (str v)]]))))
 
+(defn duplicated-keys [m]
+  (let [duplicated (->> (group-by (comp clojure.string/lower-case key) m)
+                        (filter (comp (partial < 1)count second))
+                        (map first))]
+    (seq duplicated)))
+
 (defn transform-args
   "Transform arguments into a vector of key/value pairs."
   [args]
+  (when-let [dups (duplicated-keys args)]
+    (throw (ex-info "Keys should not be duplicated" {:duplicated dups})))
   (vec (mapcat transform-arg (filter (complement nil?) args))))
 
 (defn build-args

@@ -13,5 +13,6 @@
     :codox {:source-uri  "https://github.com/exoscale/clostack/blob/{version}/{filepath}#L{line}"
             :output-path "docs"
             :metadata    {:doc/format :markdown}}
+    :deploy-repositories [["snapshots" :clojars] ["releases" :clojars]]
     :dependencies ~deps
     :source-paths ~paths))

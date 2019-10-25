@@ -51,7 +51,7 @@
   "Transform arguments into a vector of key/value pairs."
   [args]
   (when-let [dups (duplicated-keys args)]
-    (throw (ex-info "keys should not be duplicated" {:duplicated dups})))
+    (throw (ex-info "Keys should not be duplicated" {:duplicated dups})))
   (vec (mapcat transform-arg (filter (complement nil?) args))))
 
 (defn build-args

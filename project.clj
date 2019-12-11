@@ -3,7 +3,7 @@
               [k version :exclusions exclusions])
       paths (:paths cfg)]
 
-  (defproject exoscale/clostack "0.2.21"
+  (defproject exoscale/clostack "0.2.22-SNAPSHOT"
     :description "clojure cloudstack client"
     :url "https://github.com/exoscale/clostack"
     :license {:name "MIT License"}

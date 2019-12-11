@@ -85,7 +85,7 @@
                           (catch Exception _ default-expiration))
           exp-args   (expires-args exp-s)
           args       (-> args
-                         (assoc :apikey api-key :response "json")
+                         (assoc :apiKey api-key :response "json")
                          (merge exp-args))
           signature  (sign args api-secret)]
       (assoc args :signature signature))))

@@ -1,7 +1,8 @@
 (ns clostack.payload-test
   (:require [clostack.payload :refer [sign build-payload]]
             [clojure.test :refer :all]
-            [clj-time.core :as t]))
+            [clj-time.core :as t]
+            [exoscale.cloak :as cloak]))
 
 (def API_KEY "key")
 (def API_SECRET "secret")
@@ -21,21 +22,42 @@
 
 
 (deftest test-payload
-  (with-redefs [t/now (constantly (t/date-time 2019))]
-    (let [payload (build-payload
-                   {:api-key API_KEY
-                    :api-secret API_SECRET
-                    :expiration 3600}
-                   :someApiCall
-                   {:arg1 "test"
-                    :arg2 42})]
+  (testing "clear text secret"
+    (with-redefs [t/now (constantly (t/date-time 2019))]
+      (let [payload (build-payload
+                     {:api-key API_KEY
+                      :api-secret API_SECRET
+                      :expiration 3600}
+                     :someApiCall
+                     {:arg1 "test"
+                      :arg2 42})]
 
-      (is (= {:arg1 "test"
-              :arg2 42
-              :command :someApiCall
-              :apiKey API_KEY
-              :response "json"
-              :signatureVersion "3"
-              :expires "2019-01-01T01:00:00+0000"
-              :signature "8KNWCEMTMhcMm8LG3nhAy4RSlhE="}
-             payload)))))
+        (is (= {:arg1 "test"
+                :arg2 42
+                :command :someApiCall
+                :apiKey API_KEY
+                :response "json"
+                :signatureVersion "3"
+                :expires "2019-01-01T01:00:00+0000"
+                :signature "8KNWCEMTMhcMm8LG3nhAy4RSlhE="}
+               payload)))))
+
+  (testing "cloaked secret"
+    (with-redefs [t/now (constantly (t/date-time 2019))]
+      (let [payload (build-payload
+                     {:api-key API_KEY
+                      :api-secret (cloak/mask API_SECRET)
+                      :expiration 3600}
+                     :someApiCall
+                     {:arg1 "test"
+                      :arg2 42})]
+
+        (is (= {:arg1 "test"
+                :arg2 42
+                :command :someApiCall
+                :apiKey API_KEY
+                :response "json"
+                :signatureVersion "3"
+                :expires "2019-01-01T01:00:00+0000"
+                :signature "8KNWCEMTMhcMm8LG3nhAy4RSlhE="}
+               payload))))))

@@ -3,7 +3,8 @@
    to find configuration for the library. See the `init` function
    for a description of the logic."
   (:require [clojure.string :as s]
-            [clojure.edn    :as edn]))
+            [clojure.edn    :as edn]
+            [exoscale.cloak :as cloak]))
 
 (defn getenv
   "Fetch variable from environment or system properties"
@@ -57,9 +58,10 @@
   (let [path    (config-path)
         config  (keywordify (read-config path))
         profile (keyword (getenv :clostack.profile "default"))]
-    (keywordify
-     (or (environment-config)
-         (file-config profile config)
-         (throw (ex-info "Could not find configuration profile for clostack."
-                         {:config-path path
-                          :config config}))))))
+    (-> (keywordify
+         (or (environment-config)
+             (file-config profile config)
+             (throw (ex-info "Could not find configuration profile for clostack."
+                             {:config-path path
+                              :config config}))))
+        (update :api-secret cloak/mask))))

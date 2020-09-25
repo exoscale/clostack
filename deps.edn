@@ -3,4 +3,5 @@
  {org.clojure/clojure    {:mvn/version "1.10.1"}
   aleph                  {:mvn/version "0.4.6"}
   cheshire               {:mvn/version "5.9.0"}
-  clj-time               {:mvn/version "0.15.2"}}}
+  clj-time               {:mvn/version "0.15.2"}
+  exoscale/cloak         {:mvn/version "0.1.2"}}}

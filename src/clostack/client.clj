@@ -16,7 +16,7 @@
      - :config a map of the following optional:
        - :endpoint HTTP endpoint for the API
        - :api-key
-       - :api-secret
+       - :api-secret (value may be \"cloaked\" by exoscale.cloak)
        - :request-method (:get or :post, default to :post)
        - :page-size number of entities to fetch per page (500 per default)
      - :opts: an opt map handed out to aleph's http client

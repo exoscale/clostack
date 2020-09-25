@@ -5,7 +5,9 @@
             [clojure.string     :as s]
             [clostack.date      :refer [expires-args]]
             [clostack.signature :as sig]
-            [clostack.utils     :refer [url-encode quote-plus]]))
+            [clostack.utils     :refer [url-encode quote-plus]]
+            [exoscale.cloak     :as cloak]))
+
 
 (def default-expiration 600)
 
@@ -87,5 +89,5 @@
           args       (-> args
                          (assoc :apiKey api-key :response "json")
                          (merge exp-args))
-          signature  (sign args api-secret)]
+          signature  (sign args (cloak/unmask api-secret))]
       (assoc args :signature signature))))

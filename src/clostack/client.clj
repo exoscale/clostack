@@ -67,10 +67,19 @@
        (some-> config :request-method name str/lower-case keyword)
        http-post))
 
+(defn safe-parse-json-body
+  [body]
+  (try
+    (-> body
+        bs/to-reader
+        (json/parse-stream true))
+    (catch Exception e
+      {:original-body body
+       :parser-exception-message (ex-message e)})))
+
 (defn parse-body
   [response]
-  (let [parse-json-body #(-> % bs/to-reader (json/parse-stream true))]
-    (update response :body parse-json-body)))
+  (update response :body safe-parse-json-body))
 
 (defn prepare-error-fn
   [f]
